@@ -1,0 +1,13 @@
+{
+    // General Settings
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+ 
+    "editor.rulers": [
+        100
+    ],
+    "editor.tabSize": 3,
+    "editor.renderWhitespace": "all",
+ 
+ }
+ 
