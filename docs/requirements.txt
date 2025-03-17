@@ -1,0 +1,9 @@
+sphinx>=6.0
+sphinx-needs
+matplotlib
+#tests start
+sphinx-test-reports
+pytest
+pytest-reportlog
+coverage
+#tests end
