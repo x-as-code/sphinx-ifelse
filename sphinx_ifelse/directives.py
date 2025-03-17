@@ -227,10 +227,6 @@ class ElseDirective(SphinxDirective):
         previously_evaluatedtoTrue:bool = False
         last_sibling = parent[-1]
 
-        if self.state.document.settings.env.docname == 'spacing_examples':
-            print('last sibling')
-            print(last_sibling)
-
         if isinstance(last_sibling, IfNode):
             previously_evaluatedtoTrue = last_sibling.evaluatedto
         elif isinstance(last_sibling, ElIfNode):
