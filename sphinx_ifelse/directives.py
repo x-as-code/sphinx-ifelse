@@ -13,7 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class IfNode(nodes.General, nodes.Element):
-    def __init__(self, condition:str = '', evaluatedto:bool = False, location = None):
+    def __init__(self,
+                 condition:str = '',
+                 evaluatedto:bool = False,
+                 location = None):
         self.condition = condition
         self.evaluatedto = evaluatedto
         self.location = location
@@ -21,7 +24,11 @@ class IfNode(nodes.General, nodes.Element):
 
 
 class ElIfNode(nodes.General, nodes.Element):
-    def __init__(self, condition:str = '', evaluatedto:bool = False, previously_evaluatedtoTrue:bool = False, location = None):
+    def __init__(self,
+                 condition:str = '',
+                 evaluatedto:bool = False,
+                 previously_evaluatedtoTrue:bool = False,
+                 location = None):
         self.condition = condition
         self.evaluatedto = evaluatedto
         self.previously_evaluatedtoTrue = previously_evaluatedtoTrue
@@ -30,7 +37,9 @@ class ElIfNode(nodes.General, nodes.Element):
 
 
 class ElseNode(nodes.General, nodes.Element):
-    def __init__(self, previously_evaluatedtoTrue:bool = False, location = None):
+    def __init__(self,
+                 previously_evaluatedtoTrue:bool = False,
+                 location = None):
         self.previously_evaluatedtoTrue = previously_evaluatedtoTrue
         self.location = location
         super().__init__()
@@ -58,7 +67,7 @@ class AbstractIfEelseDirective(SphinxDirective):
         """
 
         env = self.state.document.settings.env
-        vari
+        variants = {}
 
         try:
             proceed = eval(condition, globals=variants)
@@ -91,19 +100,12 @@ class IfDirective(SphinxDirective):
 
         if self.arguments:
 
-            from sphinx.config import is_serializable
-
-            debug_string = 'self.arguments[0]: ' + self.arguments[0] + ' variants: ' + str(variants) + \
-                           ' is_serializable(variants): ' + str(is_serializable(variants))
-
-            #logger.warning(debug_string, location=directive2location(self), once=True)
-
             condition = self.arguments[0]
 
             try:
                 # eval will change the globals variable, we have to avoid this,
                 # so we create a deep copy
-                variants_deep_copy = copy.deepcopy(app.config.ifelse_variants)
+                variants_deep_copy = copy.deepcopy(variants)
                 proceed = eval(condition, globals=variants_deep_copy)
             except Exception as err:
                 logger.warning(
@@ -159,7 +161,7 @@ class ElIfDirective(SphinxDirective):
             try:
                 # eval will change the globals variable, we have to avoid this,
                 # so we create a deep copy
-                variants_deep_copy = copy.deepcopy(app.config.ifelse_variants)
+                variants_deep_copy = copy.deepcopy(variants)
                 proceed = eval(condition, globals=variants_deep_copy)
             except Exception as err:
                 logger.warning(
