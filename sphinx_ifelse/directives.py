@@ -1,3 +1,5 @@
+import copy
+
 from docutils import nodes
 
 from sphinx.util.docutils import SphinxDirective
@@ -79,21 +81,13 @@ class IfDirective(SphinxDirective):
     final_argument_whitespace = True
     has_content = True
 
-    variants: dict | None = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def run(self):
         parent = self.state.parent
         env = self.state.document.settings.env
         app = env.app
 
         exception_by_unresolvable_condition = app.config.ifelse_warning_by_unresolvable_condition
-        if IfDirective.variants == None:
-            IfDirective.variants = app.config.ifelse_variants
-
-        variants = IfDirective.variants
+        variants = app.config.ifelse_variants
 
         if self.arguments:
 
@@ -107,7 +101,10 @@ class IfDirective(SphinxDirective):
             condition = self.arguments[0]
 
             try:
-                proceed = eval(condition, globals=variants)
+                # eval will change the globals variable, we have to avoid this,
+                # so we create a deep copy
+                variants_deep_copy = copy.deepcopy(app.config.ifelse_variants)
+                proceed = eval(condition, globals=variants_deep_copy)
             except Exception as err:
                 logger.warning(
                     __('exception while evaluating if directive expression: %s'),
@@ -152,22 +149,24 @@ class ElIfDirective(SphinxDirective):
         env = self.state.document.settings.env
         app = env.app
 
-        exception_by_unresolvable_condition = env.config.ifelse_warning_by_unresolvable_condition
-        #variants = env.config.ifelse_variants
-        variants = {}
+        exception_by_unresolvable_condition = app.config.ifelse_warning_by_unresolvable_condition
+        variants = app.config.ifelse_variants
 
         if self.arguments:
 
             condition = self.arguments[0]
 
             try:
-                proceed = eval(condition, globals=variants)
+                # eval will change the globals variable, we have to avoid this,
+                # so we create a deep copy
+                variants_deep_copy = copy.deepcopy(app.config.ifelse_variants)
+                proceed = eval(condition, globals=variants_deep_copy)
             except Exception as err:
-                #logger.warning(
-                #    __('exception while evaluating elif directive expression: %s'),
-                #    err,
-                #    location=directive2location(self)
-                #)
+                logger.warning(
+                    __('exception while evaluating elif directive expression: %s'),
+                    err,
+                    location=directive2location(self)
+                )
                 proceed = False
 
         else:

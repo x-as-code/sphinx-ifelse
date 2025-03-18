@@ -1,6 +1,6 @@
 """Sphinx extension for alternating content based on configuration values."""
 
-__version__ = "0.6.4"
+__version__ = "0.6.9"
 
 
 def setup(app):  # type: ignore[no-untyped-def]
