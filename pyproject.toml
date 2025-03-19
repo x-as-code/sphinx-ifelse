@@ -6,6 +6,24 @@ license = "EUPL-1.2"
 license-file = "LICENSE"
 readme = "README.md"
 
+classifiers = [
+  'Development Status :: 4 - Beta',
+  'Intended Audience :: Developers',
+  'License :: OSI Approved :: European Union Public Licence 1.2 (EUPL 1.2)',
+  'Framework :: Sphinx :: Extension',
+  'Operating System :: OS Independent',
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Python :: 3.13',
+  'Programming Language :: Python :: 3.14',
+  'Topic :: Documentation',
+  'Topic :: Utilities',
+]
+
 requires-python = ">=3.9,<4"
 dependencies = [
   "sphinx>=7.4,<9",
