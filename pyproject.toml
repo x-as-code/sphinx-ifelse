@@ -1,13 +1,20 @@
-[build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
-
 [project]
 name = "sphinx-ifelse"
-authors = [{name = "PhilipPartsch"}]
+authors = [{name = "Team X-As-Code", email = "info@x-as-code.org" }]
 dynamic = ["version", "description"]
+license = "EUPL-1.2"
+license-file = "LICENSE"
+readme = "README.md"
 
 requires-python = ">=3.9,<4"
 dependencies = [
   "sphinx>=7.4,<9",
 ]
+
+[project.urls]
+urls.Repository = "http://github.com/<org>/<repo>>"
+urls.Documentation = "<link>"
+
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
