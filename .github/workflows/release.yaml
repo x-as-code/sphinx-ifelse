@@ -8,7 +8,7 @@ jobs:
     publish:
       name: Publish to PyPi
       # needs: check
-      if: github.repository_owner == 'x-as-code' && github.repository == 'sphinx-ifelse'
+      # if: github.repository_owner == 'x-as-code' && github.repository == 'sphinx-ifelse'
       runs-on: ubuntu-latest
       steps:
       - name: Checkout source
