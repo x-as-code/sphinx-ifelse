@@ -12,3 +12,4 @@ Sphinx-IfElse Project
    variants
    spacing_examples
    error
+   missing_previous_content

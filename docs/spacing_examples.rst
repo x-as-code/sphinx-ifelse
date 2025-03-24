@@ -39,6 +39,11 @@ working spaces
 
    2
 
+You should see four times a two.
+
+working spaces
+==============
+
 .. if:: l1 == 1
 
    1
@@ -49,4 +54,14 @@ working spaces
 
    2
 
-You should see four times a two.
+.. if:: l1 == 1
+
+   1
+
+.. hello comment
+.. hello comment
+.. else::
+
+   2
+
+You should see two times a two.

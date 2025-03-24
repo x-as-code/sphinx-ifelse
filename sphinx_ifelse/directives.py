@@ -4,7 +4,6 @@ from docutils import nodes
 
 from sphinx.util.docutils import SphinxDirective
 
-from sphinx.locale import __
 from sphinx.util import logging
 
 from sphinx_ifelse.utils import directive2location, remove_all_childs_of_types
@@ -110,7 +109,7 @@ class AbstractIfElseDirective(SphinxDirective):
 
         return proceed
 
-    def fetch_alreadly_evaluatedtoTrue(self)->bool:
+    def fetch_already_evaluatedtoTrue(self)->bool:
         """
         Fetches the result of a already evaluated condition.
 
@@ -122,9 +121,14 @@ class AbstractIfElseDirective(SphinxDirective):
         class_name = self.__class__.__name__
 
         parent = self.state.parent
-        last_sibling = parent[-1]
-
         previously_evaluatedtoTrue:bool = False
+
+        last_sibling = None
+
+        # find last none 'nodes.comment'
+        for last_sibling in reversed(parent):
+            if not isinstance(last_sibling, nodes.comment):
+                break
 
         if isinstance(last_sibling, IfNode) or isinstance(last_sibling, ElIfNode):
             previously_evaluatedtoTrue = last_sibling.already_evaluatedtoTrue()
@@ -185,7 +189,7 @@ class ElIfDirective(AbstractIfElseDirective):
         condition = self.arguments[0]
         proceed = self.evaluate_condition(condition=condition)
 
-        previously_evaluatedtoTrue = self.fetch_alreadly_evaluatedtoTrue()
+        previously_evaluatedtoTrue = self.fetch_already_evaluatedtoTrue()
 
         selfnode = ElIfNode(
             condition=condition,
@@ -212,7 +216,7 @@ class ElseDirective(AbstractIfElseDirective):
     has_content = True
 
     def run(self):
-        previously_evaluatedtoTrue = self.fetch_alreadly_evaluatedtoTrue()
+        previously_evaluatedtoTrue = self.fetch_already_evaluatedtoTrue()
 
         selfnode = ElseNode(
             previously_evaluatedtoTrue = previously_evaluatedtoTrue,
