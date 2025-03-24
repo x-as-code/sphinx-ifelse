@@ -39,29 +39,14 @@ working spaces
 
    2
 
-You should see four times a two.
-
-
-non-working spaces
-==================
-
 .. if:: l1 == 1
 
    1
 
-hello
+.. hello comment
 
 .. else::
 
    2
 
-.. if:: l1 == 1
-
-   1
-
-hello2
-
-.. elif:: l1 == 2
-
-   2
-
+You should see four times a two.

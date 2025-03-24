@@ -11,3 +11,4 @@ Sphinx-IfElse Project
    embedded_examples
    variants
    spacing_examples
+   error

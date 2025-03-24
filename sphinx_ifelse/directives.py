@@ -9,40 +9,58 @@ from sphinx.util import logging
 
 from sphinx_ifelse.utils import directive2location, remove_all_childs_of_types
 
+
 logger = logging.getLogger(__name__)
 
 
-class IfNode(nodes.General, nodes.Element):
-    def __init__(self,
-                 condition:str = '',
-                 evaluatedto:bool = False,
-                 location = None):
-        self.condition = condition
-        self.evaluatedto = evaluatedto
-        self.location = location
-        super().__init__()
+class IfElseNode(nodes.General, nodes.Element):
 
-
-class ElIfNode(nodes.General, nodes.Element):
     def __init__(self,
-                 condition:str = '',
-                 evaluatedto:bool = False,
-                 previously_evaluatedtoTrue:bool = False,
-                 location = None):
+                 condition: str | None,
+                 evaluatedto: bool,
+                 previously_evaluatedtoTrue: bool,
+                 location):
         self.condition = condition
         self.evaluatedto = evaluatedto
         self.previously_evaluatedtoTrue = previously_evaluatedtoTrue
         self.location = location
         super().__init__()
 
+    def already_evaluatedtoTrue(self):
+        return self.evaluatedto or self.previously_evaluatedtoTrue
 
-class ElseNode(nodes.General, nodes.Element):
+
+class IfNode(IfElseNode):
     def __init__(self,
+                 condition: str = '',
+                 evaluatedto: bool = False,
+                 location = None):
+        super().__init__(condition = condition,
+                         evaluatedto = evaluatedto,
+                         previously_evaluatedtoTrue = False,
+                         location = location)
+
+
+class ElIfNode(IfElseNode):
+    def __init__(self,
+                 condition: str = '',
+                 evaluatedto: bool = False,
                  previously_evaluatedtoTrue:bool = False,
                  location = None):
-        self.previously_evaluatedtoTrue = previously_evaluatedtoTrue
-        self.location = location
-        super().__init__()
+        super().__init__(condition = condition,
+                         evaluatedto = evaluatedto,
+                         previously_evaluatedtoTrue = previously_evaluatedtoTrue,
+                         location = location)
+
+
+class ElseNode(IfElseNode):
+    def __init__(self,
+                 previously_evaluatedtoTrue: bool = False,
+                 location = None):
+        super().__init__(condition = None,
+                         evaluatedto = not previously_evaluatedtoTrue,
+                         previously_evaluatedtoTrue = previously_evaluatedtoTrue,
+                         location = location)
 
 
 def process_ifelse_nodes(app, doctree, fromdocname):
@@ -50,38 +68,80 @@ def process_ifelse_nodes(app, doctree, fromdocname):
     remove_all_childs_of_types(doctree, nodetypes)
     return
 
-class AbstractIfEelseDirective(SphinxDirective):
-    """Abstract class for common if/else logic.
+
+class AbstractIfElseDirective(SphinxDirective):
+    """
+    Abstract class for common if/else logic.
     """
 
-    def evaluate_condition(self, condition:str, name_of_directive: str)->bool:
+    def evaluate_condition(self, condition:str)->bool:
         """
-        Evaluates a given condition for a specific directive.
-
-        Args:
-            condition (str): The condition to evaluate.
-            name_of_directive (str): The name of the directive associated with the condition.
+        Determines if a previous sibling directive (if or elif)
+        has already evaluated to True.
 
         Returns:
-            bool: The result of the condition evaluation.
+            bool: True if a previous sibling directive evaluated to True,
+                  otherwise False.
         """
 
         env = self.state.document.settings.env
-        variants = {}
+        app = env.app
+
+        class_name = self.__class__.__name__
+
+        variants = app.config.ifelse_variants
+        warning_by_unresolvable_condition = app.config.ifelse_warning_by_unresolvable_condition
+
+        # eval will change the globals variable, we have to avoid this,
+        # so we create a deep copy
+        variants_deep_copy = copy.deepcopy(variants)
 
         try:
-            proceed = eval(condition, globals=variants)
+            proceed = eval(condition, globals=variants_deep_copy)
         except Exception as err:
+            if warning_by_unresolvable_condition:
+                logger.warning(
+                    f"{class_name}: exception while evaluating expression: {err}",
+                    type="ifelse",
+                    subtype=class_name,
+                    location=directive2location(self)
+                )
+            proceed = True
+
+        return proceed
+
+    def fetch_alreadly_evaluatedtoTrue(self)->bool:
+        """
+        Fetches the result of a already evaluated condition.
+
+        Returns:
+            bool: `True` if the condition was already evaluated to `True`,
+                  otherwise `False`.
+        """
+
+        class_name = self.__class__.__name__
+
+        parent = self.state.parent
+        last_sibling = parent[-1]
+
+        previously_evaluatedtoTrue:bool = False
+
+        if isinstance(last_sibling, IfNode) or isinstance(last_sibling, ElIfNode):
+            previously_evaluatedtoTrue = last_sibling.already_evaluatedtoTrue()
+        else:
             logger.warning(
-                __('exception while evaluating if directive expression: %s'),
-                err,
+                f"{class_name}: without a preceding IfDirective or ElIfDirective. "+ \
+                f"Maybe there is something wrong with the intendition.",
+                type="ifelse",
+                subtype=class_name,
                 location=directive2location(self)
             )
-            proceed = False
+            previously_evaluatedtoTrue = False
 
-        return True
+        return previously_evaluatedtoTrue
 
-class IfDirective(SphinxDirective):
+
+class IfDirective(AbstractIfElseDirective):
     """Directive to switch between alternative content in the documentation.
     """
 
@@ -91,37 +151,8 @@ class IfDirective(SphinxDirective):
     has_content = True
 
     def run(self):
-        parent = self.state.parent
-        env = self.state.document.settings.env
-        app = env.app
-
-        exception_by_unresolvable_condition = app.config.ifelse_warning_by_unresolvable_condition
-        variants = app.config.ifelse_variants
-
-        if self.arguments:
-
-            condition = self.arguments[0]
-
-            try:
-                # eval will change the globals variable, we have to avoid this,
-                # so we create a deep copy
-                variants_deep_copy = copy.deepcopy(variants)
-                proceed = eval(condition, globals=variants_deep_copy)
-            except Exception as err:
-                logger.warning(
-                    __('exception while evaluating if directive expression: %s'),
-                    err,
-                    location=directive2location(self)
-                )
-                proceed = False
-
-        else:
-            logger.warning(
-                'if directive with empty condition. Handled as it was set to True.',
-                location=directive2location(self)
-            )
-            proceed = True
-            condition = ''
+        condition = self.arguments[0]
+        proceed = self.evaluate_condition(condition=condition)
 
         selfnode = IfNode(
             condition=condition,
@@ -131,13 +162,13 @@ class IfDirective(SphinxDirective):
 
         if not proceed:
             return [selfnode]
+        else:
+            parsed = self.parse_content_to_nodes(allow_section_headings=True)
+            parsed.append(selfnode)
+            return parsed
 
-        parsed = self.parse_content_to_nodes(allow_section_headings=True)
-        parsed.append(selfnode)
-        return parsed
 
-
-class ElIfDirective(SphinxDirective):
+class ElIfDirective(AbstractIfElseDirective):
     """Directive to switch between alternative content in the documentation.
     """
 
@@ -151,48 +182,10 @@ class ElIfDirective(SphinxDirective):
         env = self.state.document.settings.env
         app = env.app
 
-        exception_by_unresolvable_condition = app.config.ifelse_warning_by_unresolvable_condition
-        variants = app.config.ifelse_variants
+        condition = self.arguments[0]
+        proceed = self.evaluate_condition(condition=condition)
 
-        if self.arguments:
-
-            condition = self.arguments[0]
-
-            try:
-                # eval will change the globals variable, we have to avoid this,
-                # so we create a deep copy
-                variants_deep_copy = copy.deepcopy(variants)
-                proceed = eval(condition, globals=variants_deep_copy)
-            except Exception as err:
-                logger.warning(
-                    __('exception while evaluating elif directive expression: %s'),
-                    err,
-                    location=directive2location(self)
-                )
-                proceed = False
-
-        else:
-            logger.warning(
-                'elif directive with empty condition. Handled as it was set to True.',
-                location=directive2location(self)
-            )
-            condition = ''
-            proceed = True
-
-        previously_evaluatedtoTrue:bool = False
-        last_sibling = parent[-1]
-
-        if isinstance(last_sibling, IfNode):
-            previously_evaluatedtoTrue = last_sibling.evaluatedto
-        elif isinstance(last_sibling, ElIfNode):
-            previously_evaluatedtoTrue = (last_sibling.evaluatedto or last_sibling.previously_evaluatedtoTrue)
-        else:
-            logger.warning(
-                'elif directive without a preceding if or elif directive. '+ \
-                'You may have missed to add if or elif directive, or there is a miss-intendition.',
-                location=directive2location(self)
-            )
-            previously_evaluatedtoTrue = False
+        previously_evaluatedtoTrue = self.fetch_alreadly_evaluatedtoTrue()
 
         selfnode = ElIfNode(
             condition=condition,
@@ -203,13 +196,13 @@ class ElIfDirective(SphinxDirective):
 
         if not proceed or previously_evaluatedtoTrue:
             return [selfnode]
+        else:
+            parsed = self.parse_content_to_nodes(allow_section_headings=True)
+            parsed.append(selfnode)
+            return parsed
 
-        parsed = self.parse_content_to_nodes(allow_section_headings=True)
-        parsed.append(selfnode)
-        return parsed
 
-
-class ElseDirective(SphinxDirective):
+class ElseDirective(AbstractIfElseDirective):
     """Directive to switch between alternative content in the documentation.
     """
 
@@ -219,26 +212,7 @@ class ElseDirective(SphinxDirective):
     has_content = True
 
     def run(self):
-        parent = self.state.parent
-        env = self.state.document.settings.env
-        app = env.app
-
-        variants = env.config.ifelse_variants
-
-        previously_evaluatedtoTrue:bool = False
-        last_sibling = parent[-1]
-
-        if isinstance(last_sibling, IfNode):
-            previously_evaluatedtoTrue = last_sibling.evaluatedto
-        elif isinstance(last_sibling, ElIfNode):
-            previously_evaluatedtoTrue = (last_sibling.evaluatedto or last_sibling.previously_evaluatedtoTrue)
-        else:
-            logger.warning(
-                'else directive without a preceding if or elif directive. '+ \
-                'You may have missed to add if or elif directive, or there is a miss-intendition.',
-                location=directive2location(self)
-            )
-            previously_evaluatedtoTrue = False
+        previously_evaluatedtoTrue = self.fetch_alreadly_evaluatedtoTrue()
 
         selfnode = ElseNode(
             previously_evaluatedtoTrue = previously_evaluatedtoTrue,
@@ -247,7 +221,7 @@ class ElseDirective(SphinxDirective):
 
         if previously_evaluatedtoTrue:
             return [selfnode]
-
-        parsed = self.parse_content_to_nodes(allow_section_headings=True)
-        parsed.append(selfnode)
-        return parsed
+        else:
+            parsed = self.parse_content_to_nodes(allow_section_headings=True)
+            parsed.append(selfnode)
+            return parsed
