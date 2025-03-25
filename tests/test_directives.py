@@ -1,9 +1,8 @@
 import os
 import pytest
-import tempfile
 from sphinx.application import Sphinx
 
-def test_docu_generation():
+def test_example_project():
 
    # Get test project dir
    current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -54,4 +53,3 @@ def test_docu_generation():
       assert "Working spaces.4.2 shall be in the output."         in output_content
       assert "Working spaces.5.1 shall not be in the output." not in output_content
       assert "Working spaces.5.2 shall be in the output."         in output_content
-
