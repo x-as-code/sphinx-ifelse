@@ -21,12 +21,10 @@ def test_error_project():
    # Verify the output
    output_file_index = os.path.join(build_dir, "index.html")
    assert os.path.exists(output_file_index)
-
-   output_file_elif_error = os.path.join(build_dir, "error.html")
-   assert os.path.exists(output_file_elif_error)
-   with open(output_file_elif_error, "r") as f:
+   with open(output_file_index, "r") as f:
       output_content = f.read()
 
+      assert "<p>ElifDirective without previous text shall be in the output." in output_content
       assert "<p>IfDirective /Undefined element in condition/ text shall be in the output." in output_content
       assert "<p>IfDirective /Empty condition/ text shall not be in the output." not in output_content
       assert "<p>ElIfDirective /Undefined element in condition/ text before shall not be in the output." not in output_content

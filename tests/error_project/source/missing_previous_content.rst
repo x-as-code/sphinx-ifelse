@@ -1,3 +1,0 @@
-.. elif:: True
-
-   Expected content
