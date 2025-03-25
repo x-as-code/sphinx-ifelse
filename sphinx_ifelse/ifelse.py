@@ -1,6 +1,6 @@
 from sphinx_ifelse import __version__ as sphinx_ifelse_version
 
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 
@@ -10,6 +10,9 @@ from sphinx_ifelse.directives import ElseNode, ElseDirective
 from sphinx_ifelse.directives import process_ifelse_nodes
 
 def setup(app: Sphinx) -> Dict[str, Any]:
+    """
+    Set up the Sphinx-ifelse extension.
+    """
     #see https://www.sphinx-doc.org/en/master/development/tutorials/extending_build.html
 
     app.add_config_value(name="ifelse_warning_by_unresolvable_condition",

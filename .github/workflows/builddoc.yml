@@ -38,7 +38,43 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install setuptools
         python -m pip install -r ./docs/requirements.txt
+        python -m pip install -r ./tests/requirements.txt
         python -m pip install .
+    - name: Test with pytest
+      run: >
+        coverage run
+        --branch
+        --data-file=./docs/_static/_external_data/coverage.file
+        -m pytest
+        ./tests/
+        --junitxml=./docs/_static/_external_data/test_results.xml
+        --report-log=./docs/_static/_external_data/test_log.json
+    - name: Archive pytest test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: pytest-results
+        path: |
+          ./docs/_static/_external_data/test_results.xml
+          ./docs/_static/_external_data/test_log.json
+          ./docs/_static/_external_data/pytest-logs.txt
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+    - name: extract data from test coverage.file
+      run: |
+        coverage xml  --data-file=./docs/_static/_external_data/coverage.file -o ./docs/_static/_external_data/coverage.xml
+        coverage json --data-file=./docs/_static/_external_data/coverage.file -o ./docs/_static/_external_data/coverage.json
+        coverage html --data-file=./docs/_static/_external_data/coverage.file -d ./docs/_static/_external_data/coverage_html
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: |
+          ./docs/_static/_external_data/coverage.file
+          ./docs/_static/_external_data/coverage.xml
+          ./docs/_static/_external_data/coverage.json
+          ./docs/_static/_external_data/coverage_html
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
     - name: Render the documentation
       run: >
         sphinx-build

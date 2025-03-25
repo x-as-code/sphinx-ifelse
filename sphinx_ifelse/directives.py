@@ -156,20 +156,20 @@ class IfDirective(AbstractIfElseDirective):
 
     def run(self):
         condition = self.arguments[0]
-        proceed = self.evaluate_condition(condition=condition)
+        condition_evaluated_to = self.evaluate_condition(condition=condition)
 
         selfnode = IfNode(
             condition=condition,
-            evaluatedto=proceed,
+            evaluatedto=condition_evaluated_to,
             location=directive2location(self)
         )
 
-        if not proceed:
-            return [selfnode]
-        else:
+        if condition_evaluated_to:
             parsed = self.parse_content_to_nodes(allow_section_headings=True)
             parsed.append(selfnode)
             return parsed
+        else:
+            return [selfnode]
 
 
 class ElIfDirective(AbstractIfElseDirective):
@@ -187,23 +187,26 @@ class ElIfDirective(AbstractIfElseDirective):
         app = env.app
 
         condition = self.arguments[0]
-        proceed = self.evaluate_condition(condition=condition)
+        condition_evaluated_to = self.evaluate_condition(condition=condition)
 
         previously_evaluatedtoTrue = self.fetch_already_evaluatedtoTrue()
 
         selfnode = ElIfNode(
             condition=condition,
-            evaluatedto=proceed,
+            evaluatedto=condition_evaluated_to,
             previously_evaluatedtoTrue = previously_evaluatedtoTrue,
             location=directive2location(self)
         )
 
-        if not proceed or previously_evaluatedtoTrue:
-            return [selfnode]
-        else:
+        process_content = condition_evaluated_to and not previously_evaluatedtoTrue
+
+        if process_content:
             parsed = self.parse_content_to_nodes(allow_section_headings=True)
             parsed.append(selfnode)
             return parsed
+        else:
+            return [selfnode]
+
 
 
 class ElseDirective(AbstractIfElseDirective):
@@ -223,9 +226,9 @@ class ElseDirective(AbstractIfElseDirective):
             location=directive2location(self)
         )
 
-        if previously_evaluatedtoTrue:
-            return [selfnode]
-        else:
+        if not previously_evaluatedtoTrue:
             parsed = self.parse_content_to_nodes(allow_section_headings=True)
             parsed.append(selfnode)
             return parsed
+        else:
+            return [selfnode]
