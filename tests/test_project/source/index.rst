@@ -7,4 +7,5 @@ Test Project
    :maxdepth: 2
 
    elif_else_examples
+   minimum_example
    spacing_examples
