@@ -1,9 +1,7 @@
 """sphinx-ifelse documentation build configuration file"""
 
-import datetime
 import os
-
-from typing import Dict, List, Tuple
+import datetime
 
 from sphinx import __version__ as sphinx_version
 print ('sphinx version: ' + str(sphinx_version))
@@ -20,8 +18,8 @@ from sphinx_ifelse.utils import tags2dict
 # General information about the project.
 project = "Sphinx-IfElse"
 now = datetime.datetime.now()
-copyright = f"2025-{now.year}, PhilipPartsch"
-author = "PhilipPartsch"
+copyright = f"2025-{now.year}, X-As-Code"
+author = "X-As-Code"
 
 master_doc = "index"
 language = "en"

@@ -1,9 +1,9 @@
-Sphinx-IfElse Project
-#####################
+Variants Project
+################
 
 <Here is the project description.>
 
 .. toctree::
    :maxdepth: 2
 
-   examples
+   variants

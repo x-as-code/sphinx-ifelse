@@ -5,53 +5,53 @@ from sphinx.application import Sphinx
 
 def test_docu_generation():
 
-   # Create a temporary directory for the Sphinx build
-   with tempfile.TemporaryDirectory() as temp_dir:
-      src_dir = os.path.join(temp_dir, "source")
-      build_dir = os.path.join(temp_dir, "build")
-      os.makedirs(src_dir)
+   # Get test project dir
+   current_dir = os.path.dirname(os.path.abspath(__file__))
+   project_dir = os.path.join(current_dir, "test_project")
+   src_dir = os.path.join(project_dir, "source")
+   build_dir = os.path.join(project_dir, "build")
 
-      # Create a minimal Sphinx configuration
-      conf_py = """
-project = 'Test Project'
-extensions = ['sphinx_ifelse']
-ifelse_variants = {
-    'VARIANT1': True,
-    'VARIANT2': False,
-}
+   # Run Sphinx build
+   app = Sphinx(src_dir, src_dir, build_dir, build_dir, "html")
+   app.build()
 
-"""
-      with open(os.path.join(src_dir, "conf.py"), "w") as f:
-         f.write(conf_py)
+   # Verify the output
+   output_file_index = os.path.join(build_dir, "index.html")
+   assert os.path.exists(output_file_index)
 
-      # Create a test reStructuredText file
-      index_rst = """
-.. if:: VARIANT1
+   output_file_elif_else_examples = os.path.join(build_dir, "elif_else_examples.html")
+   assert os.path.exists(output_file_elif_else_examples)
+   with open(output_file_elif_else_examples, "r") as f:
+      output_content = f.read()
+      assert "Coded variants.1.1 shall not be in the output." not in output_content
+      assert "Coded variants.1.2 shall not be in the output." not in output_content
+      assert "Coded variants.1.3 shall be in the output."         in output_content
+      assert "Coded variants.1.4 shall not be in the output." not in output_content
+      assert "Coded variants.2.1 shall not be in the output." not in output_content
+      assert "Coded variants.2.2 shall not be in the output." not in output_content
+      assert "Coded variants.2.3 shall be in the output."         in output_content
+      assert "Coded variants.2.4 shall not be in the output." not in output_content
 
-   This content is included.
+   output_file_minimum_example = os.path.join(build_dir, "minimum_example.html")
+   assert os.path.exists(output_file_minimum_example)
+   with open(output_file_minimum_example, "r") as f:
+      output_content = f.read()
+      assert "This content is included." in output_content
+      assert "This content is excluded." not in output_content
+      assert "This content is also excluded." not in output_content
 
-.. elif:: VARIANT2
-
-   This content is excluded.
-
-.. else::
-
-   This content is also excluded.
-
-"""
-      with open(os.path.join(src_dir, "index.rst"), "w") as f:
-         f.write(index_rst)
-
-      # Run Sphinx build
-      app = Sphinx(src_dir, src_dir, build_dir, build_dir, "html")
-      app.build()
-
-      # Verify the output
-      output_file = os.path.join(build_dir, "index.html")
-      assert os.path.exists(output_file)
-      with open(output_file, "r") as f:
-         output_content = f.read()
-         assert "This content is included." in output_content
-         assert "This content is excluded." not in output_content
-         assert "This content is also excluded." not in output_content
+   output_file_spacing_examples = os.path.join(build_dir, "spacing_examples.html")
+   assert os.path.exists(output_file_spacing_examples)
+   with open(output_file_spacing_examples, "r") as f:
+      output_content = f.read()
+      assert "Working spaces.1.1 shall not be in the output." not in output_content
+      assert "Working spaces.1.2 shall be in the output."         in output_content
+      assert "Working spaces.2.1 shall not be in the output." not in output_content
+      assert "Working spaces.2.2 shall be in the output."         in output_content
+      assert "Working spaces.3.1 shall not be in the output." not in output_content
+      assert "Working spaces.3.2 shall be in the output."         in output_content
+      assert "Working spaces.4.1 shall not be in the output." not in output_content
+      assert "Working spaces.4.2 shall be in the output."         in output_content
+      assert "Working spaces.5.1 shall not be in the output." not in output_content
+      assert "Working spaces.5.2 shall be in the output."         in output_content
 
