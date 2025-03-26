@@ -89,7 +89,6 @@ class AbstractIfElseDirective(SphinxDirective):
         class_name = self.__class__.__name__
 
         variants = app.config.ifelse_variants
-        warning_by_unresolvable_condition = app.config.ifelse_warning_by_unresolvable_condition
 
         # eval will change the globals variable, we have to avoid this,
         # so we create a deep copy
@@ -98,13 +97,12 @@ class AbstractIfElseDirective(SphinxDirective):
         try:
             proceed = eval(condition, globals=variants_deep_copy)
         except Exception as err:
-            if warning_by_unresolvable_condition:
-                logger.warning(
-                    f"{class_name}: exception while evaluating expression: {err}",
-                    type="ifelse",
-                    subtype=class_name,
-                    location=directive2location(self)
-                )
+            logger.warning(
+                f"{class_name}: exception while evaluating expression: {err}",
+                type="ifelse",
+                subtype=class_name,
+                location=directive2location(self)
+            )
             proceed = True
 
         return proceed

@@ -15,13 +15,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     """
     #see https://www.sphinx-doc.org/en/master/development/tutorials/extending_build.html
 
-    app.add_config_value(name="ifelse_warning_by_unresolvable_condition",
-                         default=True,
-                         rebuild="html",#"env",
-                         types=bool,
-                         description="Raise a warning if a condition cannot be resolved.",
-                        )
-
     app.add_config_value(name="ifelse_variants",
                          default={'empty': True},
                          rebuild="html",
