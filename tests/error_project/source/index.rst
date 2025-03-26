@@ -7,7 +7,7 @@ Test for IfDirective
 ====================
 
 Undefined element in condition
------------------------------
+------------------------------
 
 .. if:: a
 
@@ -24,7 +24,7 @@ Test for ElIfDirective
 ======================
 
 Undefined element in condition
------------------------------
+------------------------------
 
 .. if:: False
 

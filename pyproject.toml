@@ -31,3 +31,7 @@ requires-python = ">=3.9,<4"
 dependencies = [
   "sphinx>=7.4,<9",
 ]
+[tool.pytest.ini_options]
+markers = [
+    "sphinx: sphinx https://github.com/sphinx-doc/sphinx/blob/master/sphinx/testing/fixtures.py",
+]

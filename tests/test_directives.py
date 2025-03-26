@@ -1,5 +1,6 @@
 import os
 import pytest
+from io import StringIO
 from sphinx.application import Sphinx
 
 def test_example_project():
@@ -11,7 +12,18 @@ def test_example_project():
    build_dir = os.path.join(project_dir, "build")
 
    # Run Sphinx build
-   app = Sphinx(src_dir, src_dir, build_dir, build_dir, "html")
+   statusObject = StringIO()
+   warningObject = StringIO()
+   app = Sphinx(
+         srcdir = src_dir,
+         confdir = src_dir,
+         outdir = build_dir,
+         doctreedir = build_dir,
+         buildername = "html",
+         status = statusObject,
+         warning = warningObject,
+         freshenv = True,
+      )
    app.build()
 
    # Verify the output

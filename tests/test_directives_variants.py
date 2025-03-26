@@ -40,12 +40,14 @@ def version_of_variants_project(l1: int, l2: int, l3: int):
 
    # Run Sphinx build
    app = Sphinx(
-      srcdir = src_dir,
-      confdir = src_dir,
-      outdir = build_dir,
-      doctreedir = build_dir,
-      buildername = "html",
-      confoverrides = confoverrides,)
+         srcdir = src_dir,
+         confdir = src_dir,
+         outdir = build_dir,
+         doctreedir = build_dir,
+         buildername = "html",
+         freshenv = True,
+         confoverrides = confoverrides,
+      )
 
    app.build()
 
