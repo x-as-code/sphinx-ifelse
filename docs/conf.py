@@ -33,6 +33,8 @@ extensions = [
    'sphinx_ifelse',
 ]
 
+html_static_path = ['_static']
+
 # -- extension configuration: ifelse
 
 ifelse_variants = {
@@ -44,3 +46,7 @@ ifelse_variants = {
    'l2': 3,
    'l3': 3,
 }
+
+# -- extension configuration: sphinx-needs
+
+needs_build_json = True
