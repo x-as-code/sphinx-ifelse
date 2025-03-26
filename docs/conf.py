@@ -3,6 +3,8 @@
 import os
 import datetime
 
+# -- Print Versions ------------------------------------------------------
+
 from sphinx import __version__ as sphinx_version
 print ('sphinx version: ' + str(sphinx_version))
 
@@ -12,7 +14,6 @@ print ('sphinx_ifelse version: ' + str(sphinx_ifelse_version))
 from sphinx_needs import __version__ as sphinx_needs_version
 print ('sphinx-needs version: ' + str(sphinx_needs_version))
 
-from sphinx_ifelse.utils import tags2dict
 # -- General configuration ------------------------------------------------
 
 # General information about the project.
