@@ -9,8 +9,8 @@ print ('sphinx version: ' + str(sphinx_version))
 from sphinx_ifelse import __version__ as sphinx_ifelse_version
 print ('sphinx_ifelse version: ' + str(sphinx_ifelse_version))
 
-#from sphinx_needs import __version__ as sphinx_needs_version
-#print ('sphinx-needs version: ' + str(sphinx_needs_version))
+from sphinx_needs import __version__ as sphinx_needs_version
+print ('sphinx-needs version: ' + str(sphinx_needs_version))
 
 from sphinx_ifelse.utils import tags2dict
 # -- General configuration ------------------------------------------------
@@ -30,7 +30,10 @@ version = release = sphinx_ifelse_version
 on_rtd = os.environ.get("READTHEDOCS") == "True"
 
 extensions = [
-   'sphinx_ifelse',
+   "sphinx_ifelse",
+   "sphinx_needs",
+   "sphinx.ext.autodoc",
+   "sphinxcontrib.test_reports",
 ]
 
 html_static_path = ['_static']

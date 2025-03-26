@@ -30,7 +30,7 @@ def test_error_project(app, status, warning,):
    assert 0 == app.statuscode
    assert "build succeeded" in status.getvalue()  # Build succeeded
 
-   # Verify the output files
+   # Verify the output file contains expected statements
    output_file_index = os.path.join(app.outdir, "index.html")
    assert os.path.exists(output_file_index)
    with open(output_file_index, "r") as f:
@@ -47,7 +47,7 @@ def test_error_project(app, status, warning,):
       assert "<p>ElIfDirective /Missing IfDirective before ElIfDirective with evaluating to False/ text shall not be in the output." not in output_content
       assert "<p>ElseDirective /Missing IfDirective before ElseDirective/ text shall be in the output." in output_content
 
-   # Verify warnings
+   # Verify expected warnings occuring
    warnings = warning.getvalue().strip()
    assert "/index.rst:1: WARNING: ElIfDirective: without a preceding IfDirective or ElIfDirective. Maybe there is something wrong with the intendition. [ifelse.ElIfDirective]" in warnings
    assert "/index.rst:12: WARNING: IfDirective: exception while evaluating expression: name 'a' is not defined [ifelse.IfDirective]" in warnings

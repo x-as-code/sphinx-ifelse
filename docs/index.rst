@@ -6,6 +6,7 @@ Sphinx-IfElse Project
 .. toctree::
    :maxdepth: 2
 
+   tests/tests
    examples
 
 Todo:
