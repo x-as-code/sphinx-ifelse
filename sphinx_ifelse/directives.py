@@ -95,7 +95,7 @@ class AbstractIfElseDirective(SphinxDirective):
         variants_deep_copy = copy.deepcopy(variants)
 
         try:
-            proceed = eval(condition, globals=variants_deep_copy)
+            proceed = eval(condition, variants_deep_copy)
         except Exception as err:
             logger.warning(
                 f"{class_name}: exception while evaluating expression: {err}",
